@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Login / Signup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .tab-btn.active { background: #ec4899; color: #fff; }
+    .otp-input { width: 2.5rem; text-align: center; font-size: 1.5rem; }
+  </style>
+  <script src="utils.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation (reuse from index.html) -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:block flex-1 max-w-lg mx-8">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="material-icons text-gray-400">search</span>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="#" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">favorite</span>Wishlist</a>
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart <span id="cartCount" class="bg-pink-500 text-white text-xs rounded-full px-2 py-1 ml-1">0</span></a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="text-gray-700 hover:text-pink-600"><span class="material-icons text-2xl">menu</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Auth Section -->
+  <section class="py-10">
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow p-8">
+      <div class="flex gap-2 mb-6">
+        <button id="loginTab" class="tab-btn flex-1 py-2 rounded active">Login</button>
+        <button id="signupTab" class="tab-btn flex-1 py-2 rounded">Sign Up</button>
+      </div>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" class="border rounded px-4 py-2 w-full mb-4" placeholder="Email" required>
+        <input type="password" id="loginPassword" class="border rounded px-4 py-2 w-full mb-4" placeholder="Password" required>
+        <select id="loginRegion" class="border rounded px-4 py-2 w-full mb-4">
+          <option value="IN">India (IN)</option>
+          <option value="US">United States (US)</option>
+          <option value="GB">United Kingdom (GB)</option>
+          <option value="EU">European Union (EU)</option>
+        </select>
+        <button type="submit" class="bg-pink-600 text-white px-6 py-2 rounded w-full font-semibold hover:bg-pink-700">Login</button>
+        <div class="text-right mt-2"><a href="#" id="forgotLink" class="text-pink-600 hover:underline text-sm">Forgot Password?</a></div>
+      </form>
+      <form id="signupForm" class="hidden">
+        <input type="text" id="signupName" class="border rounded px-4 py-2 w-full mb-4" placeholder="Full Name" required>
+        <input type="email" id="signupEmail" class="border rounded px-4 py-2 w-full mb-4" placeholder="Email" required>
+        <input type="password" id="signupPassword" class="border rounded px-4 py-2 w-full mb-4" placeholder="Password" required>
+        <input type="text" id="signupMobile" class="border rounded px-4 py-2 w-full mb-4" placeholder="Mobile Number" required>
+        <select id="signupRegion" class="border rounded px-4 py-2 w-full mb-4">
+          <option value="">Select Country/Region</option>
+          <option value="IN">India (IN)</option>
+          <option value="US">United States (US)</option>
+          <option value="GB">United Kingdom (GB)</option>
+          <option value="EU">European Union (EU)</option>
+        </select>
+        <input type="text" id="signupAddress" class="border rounded px-4 py-2 w-full mb-4" placeholder="Address (Optional)">
+        <button type="button" id="sendOtpBtn" class="bg-yellow-400 text-black px-6 py-2 rounded w-full font-semibold hover:bg-yellow-500">Send OTP</button>
+        <div id="otpSection" class="hidden mt-4">
+          <div class="flex gap-2 mb-2">
+            <input type="text" maxlength="1" class="otp-input border rounded" id="otp1">
+            <input type="text" maxlength="1" class="otp-input border rounded" id="otp2">
+            <input type="text" maxlength="1" class="otp-input border rounded" id="otp3">
+            <input type="text" maxlength="1" class="otp-input border rounded" id="otp4">
+          </div>
+          <div class="text-sm text-gray-500 mb-2">OTP sent. <span id="otpTimer">30</span>s</div>
+          <button type="submit" class="bg-pink-600 text-white px-6 py-2 rounded w-full font-semibold hover:bg-pink-700">Verify & Sign Up</button>
+        </div>
+      </form>
+      <div id="profileSection" class="hidden mt-8 flex justify-center items-center">
+        <div class="bg-gradient-to-br from-pink-100 to-yellow-100 rounded-2xl shadow-2xl p-8 w-full max-w-md animate-fade-in">
+          <div class="flex flex-col items-center mb-6">
+            <div class="w-20 h-20 rounded-full bg-pink-500 flex items-center justify-center text-white text-3xl font-bold mb-2 shadow-lg">
+              <span id="profileAvatar">U</span>
+            </div>
+            <h2 class="text-2xl font-bold mb-1">My Profile</h2>
+          </div>
+          <div class="mb-2"><span class="font-semibold">Name:</span> <span id="profileName"></span></div>
+          <div class="mb-2"><span class="font-semibold">Email:</span> <span id="profileEmail"></span></div>
+          <div class="mb-2"><span class="font-semibold">Mobile:</span> <span id="profileMobile"></span></div>
+          <div class="mb-2"><span class="font-semibold">Country/Region:</span> <span id="profileRegion"></span></div>
+          <div class="mb-2"><span class="font-semibold">Address:</span> <span id="profileAddress"></span></div>
+          <div class="mb-4"><span class="font-semibold">Order History:</span>
+            <ul id="profileOrders" class="list-disc ml-6 text-sm text-gray-700"></ul>
+          </div>
+          <button id="trackOrderProfileBtn" class="bg-pink-600 text-white px-6 py-2 rounded hover:bg-pink-700 transition-colors ripple flex items-center gap-2 mb-4"><span class="material-icons">location_on</span>Track Order</button>
+          <button id="logoutBtn" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 mt-2 w-full">Logout</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Tab switching
+    document.getElementById('loginTab').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('signupTab').classList.remove('active');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+    };
+    document.getElementById('signupTab').onclick = function() {
+      this.classList.add('active');
+      document.getElementById('loginTab').classList.remove('active');
+      document.getElementById('signupForm').classList.remove('hidden');
+      document.getElementById('loginForm').classList.add('hidden');
+    };
+    // Simple users store and session
+    function getUsersStore(){ return JSON.parse(localStorage.getItem('usersStore')||'[]'); }
+    function setUsersStore(list){ localStorage.setItem('usersStore', JSON.stringify(list)); }
+    function findUserByEmail(email){ return getUsersStore().find(u=> (u.email||'').toLowerCase() === (email||'').toLowerCase()); }
+    function createSession(email){ localStorage.setItem('sessionUser', email); }
+    function getSession(){ return localStorage.getItem('sessionUser')||''; }
+    function clearSession(){ localStorage.removeItem('sessionUser'); }
+
+    // Default: show Sign Up if no session and user not registered yet
+    (function initAuthUI(){
+      const session = getSession();
+      if (session){ showProfile(); return; }
+      // If there is no user registered, focus signup
+      const lastUser = JSON.parse(localStorage.getItem('user')||'{}');
+      const exists = lastUser.email && findUserByEmail(lastUser.email);
+      if (!exists){
+        // switch to signup tab
+        document.getElementById('signupTab').click();
+      }
+    })();
+
+    // OTP generation and timer
+    let generatedOtp = '';
+    document.getElementById('sendOtpBtn').onclick = function(){
+      // Validate required fields before sending OTP
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const pass = document.getElementById('signupPassword').value.trim();
+      const mobile = document.getElementById('signupMobile').value.trim();
+      if(!name || !email || !pass || !mobile){ alert('Please fill all fields before requesting OTP.'); return; }
+      generatedOtp = Math.floor(1000 + Math.random()*9000).toString();
+      document.getElementById('otpSection').classList.remove('hidden');
+      let t = 30; const timerEl = document.getElementById('otpTimer'); timerEl.textContent = t;
+      const intv = setInterval(()=>{ t--; timerEl.textContent = t; if(t<=0){ clearInterval(intv);} },1000);
+      alert(`Your OTP is ${generatedOtp}`); // For demo; integrate SMS/email in production
+    };
+
+    // Signup form (must verify OTP). Save credentials in usersStore and set session
+    document.getElementById('signupForm').onsubmit = function(e) {
+      e.preventDefault();
+      const otp = [1,2,3,4].map(i => document.getElementById('otp'+i).value).join('');
+      if (otp !== generatedOtp) { alert('Invalid OTP!'); return; }
+      const name = document.getElementById('signupName').value.trim();
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value.trim();
+      const mobile = document.getElementById('signupMobile').value.trim();
+      const region = document.getElementById('signupRegion').value || utils.detectRegion();
+      const address = document.getElementById('signupAddress').value;
+      // Prevent duplicate signups
+      if (findUserByEmail(email)){ alert('Account already exists. Please log in.'); document.getElementById('loginTab').click(); return; }
+      // Persist in usersStore and user profile
+      const users = getUsersStore();
+      users.push({ name, email, password, mobile, region, address });
+      setUsersStore(users);
+      utils.setUser({ name, email, mobile, region, address });
+      createSession(email);
+      showProfile();
+    };
+
+    // Login form - only allow if user exists and password matches
+    document.getElementById('loginForm').onsubmit = function(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const region = document.getElementById('loginRegion').value || utils.detectRegion();
+      const found = findUserByEmail(email);
+      if (!found){ alert('No account found. Please sign up first.'); document.getElementById('signupTab').click(); return; }
+      if ((found.password||'') !== password){ alert('Incorrect password.'); return; }
+      // Merge profile info and set session
+      utils.setUser({ name: found.name, email: found.email, mobile: found.mobile, region, address: found.address||'' });
+      createSession(email);
+      showProfile();
+    };
+
+    // Show profile
+    function showProfile() {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) return;
+      document.getElementById('profileName').textContent = user.name;
+      document.getElementById('profileEmail').textContent = user.email;
+      document.getElementById('profileMobile').textContent = user.mobile;
+      document.getElementById('profileRegion').textContent = user.region || 'Not set';
+      document.getElementById('profileAddress').textContent = user.address || 'Not set';
+      document.getElementById('profileAvatar').textContent = user.name ? user.name[0].toUpperCase() : 'U';
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const orderList = document.getElementById('profileOrders');
+      orderList.innerHTML = orders.filter(o=> (o.user?.email||'').toLowerCase() === (user.email||'').toLowerCase())
+        .map(o => `<li>Order #${o.id} - ${o.status||'Order Placed'}</li>`).join('') || '<li>No orders yet.</li>';
+      // Hide auth tabs/forms when logged in
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+      document.getElementById('loginTab').classList.add('hidden');
+      document.getElementById('signupTab').classList.add('hidden');
+      document.getElementById('profileSection').classList.remove('hidden');
+    }
+
+    // Logout
+    document.getElementById('logoutBtn').onclick = function() {
+      clearSession();
+      // Keep user profile in storage but show login screen again
+      document.getElementById('profileSection').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('loginTab').classList.remove('hidden');
+      document.getElementById('signupTab').classList.remove('hidden');
+      document.getElementById('loginTab').classList.add('active');
+    };
+
+    // Auto show profile if logged in
+    if (getSession()) showProfile();
+
+    // Cart count
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+  </script>
+</body>
+</html>

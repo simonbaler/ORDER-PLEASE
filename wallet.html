@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Wallet & Rewards</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart</a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <section class="py-10">
+    <div class="max-w-2xl mx-auto px-4">
+      <div class="bg-gradient-to-br from-yellow-100 to-pink-100 rounded-2xl shadow-2xl p-8 animate-fade-in">
+        <h1 class="text-3xl font-bold mb-6 text-center">My Wallet & Rewards</h1>
+        <div class="flex flex-col md:flex-row gap-8 justify-center items-center mb-8">
+          <div class="bg-white rounded-xl shadow-lg p-6 flex-1 text-center">
+            <div class="text-lg font-semibold mb-2">Wallet Balance</div>
+            <div class="text-3xl font-bold text-pink-600 mb-2" id="walletBalance">₹0</div>
+            <div class="text-xs text-gray-500">Use cashback for your next order!</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 flex-1 text-center">
+            <div class="text-lg font-semibold mb-2">Loyalty Points</div>
+            <div class="text-3xl font-bold text-yellow-500 mb-2" id="loyaltyPoints">0</div>
+            <div class="text-xs text-gray-500">Earn points on every order.</div>
+          </div>
+        </div>
+        <div class="bg-white rounded-xl shadow-lg p-6 text-center mb-8">
+          <h2 class="text-xl font-bold mb-4">🎁 Daily Spin Wheel</h2>
+          <button id="spinBtn" class="btn-primary w-full mb-4">Spin Now</button>
+          <div id="spinResult" class="text-lg font-semibold text-pink-600"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script>
+    // Wallet and loyalty demo
+    let wallet = parseInt(localStorage.getItem('wallet') || '0');
+    let points = parseInt(localStorage.getItem('loyaltyPoints') || '0');
+    document.getElementById('walletBalance').textContent = `₹${wallet}`;
+    document.getElementById('loyaltyPoints').textContent = points;
+    // Spin wheel
+    document.getElementById('spinBtn').onclick = function() {
+      const rewards = [10, 20, 50, 100, 0, 5, 15, 0, 25, 0];
+      const idx = Math.floor(Math.random() * rewards.length);
+      const reward = rewards[idx];
+      if (reward > 0) {
+        wallet += reward;
+        points += reward * 2;
+        localStorage.setItem('wallet', wallet);
+        localStorage.setItem('loyaltyPoints', points);
+        document.getElementById('walletBalance').textContent = `₹${wallet}`;
+        document.getElementById('loyaltyPoints').textContent = points;
+        document.getElementById('spinResult').textContent = `You won ₹${reward} cashback and ${reward*2} points!`;
+      } else {
+        document.getElementById('spinResult').textContent = 'No luck today! Try again tomorrow.';
+      }
+      this.disabled = true;
+      setTimeout(() => { this.disabled = false; document.getElementById('spinResult').textContent = ''; }, 5000);
+    };
+  </script>
+</body>
+</html>

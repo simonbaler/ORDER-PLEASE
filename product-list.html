@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Product Listing</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="search.js"></script>
+  <script src="utils.js"></script>
+  <script src="ai.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .card-3d { transform-style: preserve-3d; transition: transform 0.3s; }
+    .card-3d:hover { transform: rotateY(5deg) rotateX(5deg) translateY(-10px); }
+    .ripple { position: relative; overflow: hidden; }
+    .ripple:active::before { width: 300px; height: 300px; }
+    .star-rating { color: #fbbf24; }
+    .product-card { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .product-card:hover { transform: translateY(-8px); box-shadow: 0 25px 50px rgba(0,0,0,0.15); }
+    .wishlist-btn.active span { color: #ec4899; }
+    .compare-btn.active span { color: #fbbf24; }
+    .quickview-modal { background: rgba(0,0,0,0.5); }
+    .read-more { cursor: pointer; color: #ec4899; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation (reuse from index.html) -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:block flex-1 max-w-lg mx-8">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-4 py-2 pl-10 pr-24 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="material-icons text-gray-400">search</span>
+            </div>
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center gap-2">
+              <button id="voiceBtn" class="text-gray-500 hover:text-pink-600"><span class="material-icons">mic</span></button>
+              <button id="scanBtn" class="text-gray-500 hover:text-pink-600"><span class="material-icons">qr_code_scanner</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <button id="darkToggle" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium" title="Toggle dark mode">
+            <span class="material-icons">dark_mode</span>
+          </button>
+          <a href="#" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">favorite</span>Wishlist</a>
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart <span id="cartCount" class="bg-pink-500 text-white text-xs rounded-full px-2 py-1 ml-1">0</span></a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="text-gray-700 hover:text-pink-600"><span class="material-icons text-2xl">menu</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- Barcode Scanner Modal -->
+  <div id="scanModal" class="fixed inset-0 hidden modal-bg z-50 items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-4 w-full max-w-md relative">
+      <button id="closeScan" class="absolute top-2 right-2 text-gray-500 hover:text-pink-600"><span class="material-icons">close</span></button>
+      <h3 class="text-lg font-semibold mb-2">Scan a barcode/QR</h3>
+      <video id="scanVideo" class="w-full rounded bg-black"></video>
+    </div>
+  </div>
+
+  <!-- Filters & Sorting -->
+  <section class="bg-white py-4 shadow">
+    <div class="max-w-7xl mx-auto px-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex flex-wrap gap-2 items-center">
+        <select id="categoryFilter" class="border rounded px-3 py-2 focus:ring-pink-500">
+          <option value="">All Categories</option>
+          <option value="Electronics">Electronics</option>
+          <option value="Fashion">Fashion</option>
+          <option value="Groceries">Groceries</option>
+          <option value="Beauty">Beauty</option>
+          <option value="Healthcare">Healthcare</option>
+        </select>
+        <select id="subcategoryFilter" class="border rounded px-3 py-2 focus:ring-pink-500">
+          <option value="">All Subcategories</option>
+          <option value="Mobiles">Mobiles</option>
+          <option value="Laptops">Laptops</option>
+          <option value="Shoes">Shoes</option>
+          <option value="Snacks">Snacks</option>
+          <option value="Skincare">Skincare</option>
+        </select>
+        <input type="number" id="minPrice" placeholder="Min Price" class="border rounded px-3 py-2 w-24 focus:ring-pink-500">
+        <input type="number" id="maxPrice" placeholder="Max Price" class="border rounded px-3 py-2 w-24 focus:ring-pink-500">
+        <button id="filterBtn" class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700">Filter</button>
+      </div>
+      <div class="flex gap-2 items-center mt-2 md:mt-0">
+        <label class="text-gray-700">Sort by:</label>
+        <select id="sortSelect" class="border rounded px-3 py-2 focus:ring-pink-500">
+          <option value="newest">Newest</option>
+          <option value="priceLow">Price: Low to High</option>
+          <option value="priceHigh">Price: High to Low</option>
+          <option value="rating">Rating</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- Product Grid -->
+  <section class="py-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" id="productGrid">
+        <!-- Products will be rendered here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Track Order Button -->
+  <div class="fixed bottom-4 left-4 z-50">
+    <button id="homeTrackBtn" class="bg-yellow-400 text-black p-4 rounded-full shadow-lg hover:bg-yellow-500 transition-colors" title="Track Order">
+      <span class="material-icons">location_on</span>
+    </button>
+  </div>
+  <!-- Track Order Modal -->
+  <div id="homeTrackModal" class="fixed inset-0 hidden modal-bg z-50 items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative">
+      <button id="homeTrackClose" class="absolute top-2 right-2 text-gray-500 hover:text-pink-600"><span class="material-icons">close</span></button>
+      <h3 class="text-xl font-bold mb-2">Order Tracking</h3>
+      <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+        <div id="homeOrderProgress" class="bg-pink-500 h-4 rounded-full transition-all" style="width: 30%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-600 mb-2">
+        <span>Order Placed</span><span>Out for Delivery</span><span>Delivered</span>
+      </div>
+      <div id="homeOrderStatus" class="text-center text-pink-600 font-semibold">Your order is being prepared...</div>
+    </div>
+  </div>
+
+  <!-- Quick View Modal -->
+  <div id="quickViewModal" class="fixed inset-0 z-50 hidden quickview-modal flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+      <button id="closeQuickView" class="absolute top-2 right-2 text-gray-500 hover:text-pink-600"><span class="material-icons">close</span></button>
+      <div id="quickViewContent"></div>
+    </div>
+  </div>
+
+  <script src="products.js"></script>
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    let compare = JSON.parse(localStorage.getItem('compare')) || [];
+
+    function updateCartCount() {
+      document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    }
+
+    function renderProducts(list) {
+      const ranked = ai.rankProducts(list);
+      const grid = document.getElementById('productGrid');
+      grid.innerHTML = ranked.map(product => `
+        <div class="product-card bg-white rounded-lg shadow-md overflow-hidden card-3d flex flex-col glow">
+          <div class="relative group">
+            <img src="${product.image}" alt="${product.name}" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+            <button class="absolute top-2 right-2 wishlist-btn ${wishlist.includes(product.id) ? 'active' : ''}" onclick="toggleWishlist(${product.id})"><span class="material-icons">favorite${wishlist.includes(product.id) ? '' : '_border'}</span></button>
+            <button class="absolute top-2 left-2 compare-btn ${compare.includes(product.id) ? 'active' : ''}" onclick="toggleCompare(${product.id})"><span class="material-icons">compare_arrows</span></button>
+            <button class="absolute bottom-2 right-2 bg-pink-600 text-white px-3 py-1 rounded ripple" onclick="showQuickView(${product.id})"><span class="material-icons">visibility</span> Quick View</button>
+          </div>
+          <div class="p-4 flex-1 flex flex-col">
+            <h3 class="font-semibold text-gray-800 mb-1">${product.name}</h3>
+            <div class="flex items-center mb-1">
+              <div class="star-rating flex">${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}</div>
+              <span class="text-gray-500 text-sm ml-2">(${product.reviews})</span>
+            </div>
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="text-xl font-bold text-gray-800">${utils.formatCurrency(product.price)}</span>
+            </div>
+            <div class="text-gray-600 text-sm mb-2">
+              <span id="desc-${product.id}">${product.description.slice(0, 60)}${product.description.length > 60 ? '... <span class=\'read-more\' onclick=\'toggleReadMore(${product.id})\'>Read More</span>' : ''}</span>
+            </div>
+            <div class="mt-auto flex gap-2">
+              <button class="bg-pink-600 text-white px-4 py-2 rounded-lg hover:bg-pink-700 transition-colors ripple flex-1" onclick="addToCart(${product.id})"><span class="material-icons mr-1">add_shopping_cart</span>Add to Cart</button>
+              <a href="product-details.html?id=${product.id}" class="bg-yellow-400 text-black px-4 py-2 rounded-lg hover:bg-yellow-500 transition-colors flex-1 text-center"><span class="material-icons mr-1">info</span>Details</a>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleReadMore(id) {
+      const product = products.find(p => p.id === id);
+      const desc = document.getElementById(`desc-${id}`);
+      if (desc.innerHTML.includes('Read More')) {
+        desc.innerHTML = `${product.description} <span class='read-more' onclick='toggleReadMore(${id})'>Show Less</span>`;
+      } else {
+        desc.innerHTML = `${product.description.slice(0, 60)}... <span class='read-more' onclick='toggleReadMore(${id})'>Read More</span>`;
+      }
+    }
+
+    function addToCart(id) {
+      const product = products.find(p => p.id === id);
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+      alert(`${product.name} added to cart!`);
+    }
+
+    function toggleWishlist(id) {
+      if (wishlist.includes(id)) {
+        wishlist = wishlist.filter(pid => pid !== id);
+      } else {
+        wishlist.push(id);
+      }
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      renderProducts(filteredProducts());
+    }
+
+    function toggleCompare(id) {
+      if (compare.includes(id)) {
+        compare = compare.filter(pid => pid !== id);
+      } else {
+        compare.push(id);
+      }
+      localStorage.setItem('compare', JSON.stringify(compare));
+      renderProducts(filteredProducts());
+    }
+
+    function showQuickView(id) {
+      const product = products.find(p => p.id === id);
+      const modal = document.getElementById('quickViewModal');
+      const content = document.getElementById('quickViewContent');
+      content.innerHTML = `
+        <div class='flex flex-col md:flex-row gap-4'>
+          <img src='${product.image}' alt='${product.name}' class='w-40 h-40 object-cover rounded'>
+          <div>
+            <h3 class='text-xl font-bold mb-2'>${product.name}</h3>
+            <div class='star-rating mb-2'>${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))} <span class='text-gray-500 text-sm ml-2'>(${product.reviews})</span></div>
+            <div class='mb-2 text-lg font-semibold'>$${product.price}</div>
+            <div class='mb-2 text-gray-600'>${product.description}</div>
+            <ul class='mb-2 text-sm text-gray-700'>${product.specs.map(s => `<li>• ${s}</li>`).join('')}</ul>
+            <button class='bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700' onclick='addToCart(${product.id})'>Add to Cart</button>
+          </div>
+        </div>
+      `;
+      modal.classList.remove('hidden');
+    }
+
+    document.getElementById('closeQuickView').onclick = () => {
+      document.getElementById('quickViewModal').classList.add('hidden');
+    };
+    window.onclick = function(event) {
+      const modal = document.getElementById('quickViewModal');
+      if (event.target === modal) modal.classList.add('hidden');
+    };
+
+    function filteredProducts() {
+      let list = [...products];
+      const cat = document.getElementById('categoryFilter').value;
+      const sub = document.getElementById('subcategoryFilter').value;
+      const min = parseFloat(document.getElementById('minPrice').value) || 0;
+      const max = parseFloat(document.getElementById('maxPrice').value) || Infinity;
+      if (cat) list = list.filter(p => p.category === cat);
+      if (sub) list = list.filter(p => p.subcategory === sub);
+      list = list.filter(p => p.price >= min && p.price <= max);
+      return sortProducts(list);
+    }
+
+    function sortProducts(list) {
+      const sort = document.getElementById('sortSelect').value;
+      if (sort === 'priceLow') return list.sort((a,b) => a.price - b.price);
+      if (sort === 'priceHigh') return list.sort((a,b) => b.price - a.price);
+      if (sort === 'rating') return list.sort((a,b) => b.rating - a.rating);
+      return list; // newest (default)
+    }
+
+    document.getElementById('filterBtn').onclick = () => renderProducts(filteredProducts());
+    document.getElementById('sortSelect').onchange = () => renderProducts(filteredProducts());
+    document.getElementById('categoryFilter').onchange = () => renderProducts(filteredProducts());
+    document.getElementById('subcategoryFilter').onchange = () => renderProducts(filteredProducts());
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      const q = (e.target.value||'').toLowerCase();
+      const list = products.filter(p => {
+        const hay = `${p.name} ${p.category} ${p.subcategory} ${(p.keywords||[]).join(' ')}`.toLowerCase();
+        return hay.includes(q);
+      });
+      renderProducts(list.length? list : products);
+    });
+
+    // Initial render
+    updateCartCount();
+    renderProducts(filteredProducts());
+
+    // Voice + Scan + Dark mode
+    window.addEventListener('DOMContentLoaded', function(){ attachVoiceSearch('searchInput','voiceBtn'); });
+    const scanBtn = document.getElementById('scanBtn');
+    const scanModal = document.getElementById('scanModal');
+    const closeScan = document.getElementById('closeScan');
+    let scanSession = null;
+    if (scanBtn){
+      scanBtn.onclick = async () => {
+        scanModal.classList.remove('hidden');
+        scanModal.classList.add('flex');
+        scanSession = await startBarcodeScan('scanVideo', (code)=>{
+          document.getElementById('searchInput').value = code;
+          document.getElementById('searchInput').dispatchEvent(new Event('input'));
+          scanModal.classList.add('hidden');
+          scanModal.classList.remove('flex');
+          scanSession && scanSession.stop();
+        });
+      };
+    }
+    if (closeScan){ closeScan.onclick = ()=>{ scanModal.classList.add('hidden'); scanModal.classList.remove('flex'); scanSession && scanSession.stop(); }; }
+    const darkPref = localStorage.getItem('theme') || 'light';
+    if (darkPref === 'dark') document.body.classList.add('dark');
+    document.getElementById('darkToggle').onclick = function(){
+      document.body.classList.toggle('dark');
+      localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    };
+
+    // Track Order logic (shared)
+    (function(){
+      const openBtn = document.getElementById('homeTrackBtn');
+      const modal = document.getElementById('homeTrackModal');
+      const closeBtn = document.getElementById('homeTrackClose');
+      const bar = document.getElementById('homeOrderProgress');
+      const statusText = document.getElementById('homeOrderStatus');
+      let intervalRef = null;
+      function startProgress(){
+        let progress = 30; bar.style.width = progress + '%'; statusText.textContent = 'Your order is being prepared...';
+        intervalRef && clearInterval(intervalRef);
+        intervalRef = setInterval(()=>{
+          if(progress < 100){
+            progress += 10; bar.style.width = progress + '%';
+            if(progress < 60) statusText.textContent = 'Your order is being prepared...';
+            else if(progress < 100) statusText.textContent = 'Out for delivery!';
+            else statusText.textContent = 'Delivered! Enjoy your purchase 👏';
+          } else { clearInterval(intervalRef); }
+        }, 1000);
+      }
+      if (openBtn){ openBtn.onclick = ()=>{ modal.classList.remove('hidden'); modal.classList.add('flex'); startProgress(); }; }
+      if (closeBtn){ closeBtn.onclick = ()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); intervalRef && clearInterval(intervalRef); }; }
+    })();
+  </script>
+</body>
+</html>

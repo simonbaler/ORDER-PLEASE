@@ -1,0 +1,29 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "Open ORDER PLEASE (Edge)",
+			"type": "msedge",
+			"request": "launch",
+			"url": "http://localhost:8080/index.html",
+			"webRoot": "${workspaceFolder}",
+			"preLaunchTask": "serve-static"
+		},
+		{
+			"name": "Open ORDER PLEASE (Chrome)",
+			"type": "chrome",
+			"request": "launch",
+			"url": "http://localhost:8080/index.html",
+			"webRoot": "${workspaceFolder}",
+			"preLaunchTask": "serve-static"
+		}
+	],
+	"compounds": [
+		{
+			"name": "Run ORDER PLEASE",
+			"configurations": [
+				"Open ORDER PLEASE (Edge)"
+			]
+		}
+	]
+}

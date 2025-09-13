@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Seller Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart</a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <section class="py-10">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="bg-gradient-to-br from-pink-100 to-yellow-100 rounded-2xl shadow-2xl p-8 animate-fade-in">
+        <h1 class="text-3xl font-bold mb-6 text-center">Seller Dashboard</h1>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+            <div class="text-lg font-semibold mb-2">Total Orders</div>
+            <div class="text-3xl font-bold text-pink-600 mb-2" id="sellerOrders">0</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+            <div class="text-lg font-semibold mb-2">Revenue</div>
+            <div class="text-3xl font-bold text-yellow-500 mb-2" id="sellerRevenue">₹0</div>
+          </div>
+          <div class="bg-white rounded-xl shadow-lg p-6 text-center">
+            <div class="text-lg font-semibold mb-2">Avg. Rating</div>
+            <div class="text-3xl font-bold text-green-500 mb-2" id="sellerRating">0.0</div>
+          </div>
+        </div>
+        <h2 class="text-xl font-bold mb-4">My Products</h2>
+        <div class="overflow-x-auto">
+          <table class="min-w-full bg-white rounded-xl shadow-lg">
+            <thead>
+              <tr class="bg-pink-100">
+                <th class="py-2 px-4">Product</th>
+                <th class="py-2 px-4">Category</th>
+                <th class="py-2 px-4">Price</th>
+                <th class="py-2 px-4">Stock</th>
+                <th class="py-2 px-4">Rating</th>
+                <th class="py-2 px-4">Orders</th>
+              </tr>
+            </thead>
+            <tbody id="sellerProducts"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+  <script src="products.js"></script>
+  <script>
+    // Demo seller data
+    const sellerProducts = products.slice(0, 5); // First 5 products for demo
+    let totalOrders = 0, totalRevenue = 0, totalRating = 0;
+    document.getElementById('sellerProducts').innerHTML = sellerProducts.map(p => {
+      const orders = Math.floor(Math.random() * 100) + 10;
+      const revenue = orders * p.price;
+      totalOrders += orders;
+      totalRevenue += revenue;
+      totalRating += p.rating;
+      return `<tr>
+        <td class='py-2 px-4'>${p.name}</td>
+        <td class='py-2 px-4'>${p.category}</td>
+        <td class='py-2 px-4'>₹${p.price}</td>
+        <td class='py-2 px-4'>${p.stock}</td>
+        <td class='py-2 px-4'>${p.rating.toFixed(1)}</td>
+        <td class='py-2 px-4'>${orders}</td>
+      </tr>`;
+    }).join('');
+    document.getElementById('sellerOrders').textContent = totalOrders;
+    document.getElementById('sellerRevenue').textContent = `₹${totalRevenue}`;
+    document.getElementById('sellerRating').textContent = (totalRating / sellerProducts.length).toFixed(1);
+  </script>
+</body>
+</html>

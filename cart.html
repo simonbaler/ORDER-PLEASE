@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Shopping Cart</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .cart-item { transition: box-shadow 0.2s; }
+    .cart-item:hover { box-shadow: 0 8px 24px rgba(236,72,153,0.08); }
+    .qty-btn { width: 32px; height: 32px; }
+    .empty-cart { color: #ec4899; }
+  </style>
+  <script src="utils.js"></script>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation (reuse from index.html) -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:block flex-1 max-w-lg mx-8">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-4 py-2 pl-10 pr-4 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="material-icons text-gray-400">search</span>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="#" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">favorite</span>Wishlist</a>
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart <span id="cartCount" class="bg-pink-500 text-white text-xs rounded-full px-2 py-1 ml-1">0</span></a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="text-gray-700 hover:text-pink-600"><span class="material-icons text-2xl">menu</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Cart Section -->
+  <section class="py-10">
+    <div class="max-w-5xl mx-auto px-4">
+      <h1 class="text-3xl font-bold mb-6">Shopping Cart</h1>
+      <div id="cartContainer">
+        <!-- Cart items will be rendered here -->
+      </div>
+      <div class="mt-6 max-w-md ml-auto">
+        <div class="mb-3 flex gap-2">
+          <input id="cartCoupon" class="border rounded px-3 py-2 flex-1" placeholder="Coupon code">
+          <button id="cartApplyCoupon" class="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">Apply</button>
+        </div>
+        <div id="cartCouponMsg" class="text-sm mb-2"></div>
+        <div class="text-right text-xl font-bold" id="cartTotalRow"></div>
+      </div>
+      <div class="flex justify-between items-center mt-8">
+        <a href="product-list.html" class="bg-gray-200 text-gray-700 px-6 py-2 rounded hover:bg-gray-300 flex items-center"><span class="material-icons mr-2">arrow_back</span>Continue Shopping</a>
+        <button id="checkoutBtn" class="bg-pink-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-pink-700 transition-colors ripple">Checkout</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Floating Track Order Button -->
+  <div class="fixed bottom-4 left-4 z-50">
+    <button id="homeTrackBtn" class="bg-yellow-400 text-black p-4 rounded-full shadow-lg hover:bg-yellow-500 transition-colors" title="Track Order">
+      <span class="material-icons">location_on</span>
+    </button>
+  </div>
+  <!-- Track Order Modal -->
+  <div id="homeTrackModal" class="fixed inset-0 hidden modal-bg z-50 items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative">
+      <button id="homeTrackClose" class="absolute top-2 right-2 text-gray-500 hover:text-pink-600"><span class="material-icons">close</span></button>
+      <h3 class="text-xl font-bold mb-2">Order Tracking</h3>
+      <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+        <div id="homeOrderProgress" class="bg-pink-500 h-4 rounded-full transition-all" style="width: 30%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-600 mb-2">
+        <span>Order Placed</span><span>Out for Delivery</span><span>Delivered</span>
+      </div>
+      <div id="homeOrderStatus" class="text-center text-pink-600 font-semibold">Your order is being prepared...</div>
+    </div>
+  </div>
+
+  <script src="products.js"></script>
+  <script>
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+    function updateCartCount() {
+      document.getElementById('cartCount').textContent = cart.reduce((sum, item) => sum + item.quantity, 0);
+    }
+
+    function renderCart() {
+      const container = document.getElementById('cartContainer');
+      if (!cart.length) {
+        container.innerHTML = `<div class='text-center py-16'><span class='material-icons text-6xl empty-cart mb-4'>remove_shopping_cart</span><div class='text-2xl font-bold mb-2'>Your cart is empty!</div><div class='text-gray-500 mb-4'>Looks like you haven't added anything yet.</div><a href='product-list.html' class='bg-pink-600 text-white px-6 py-2 rounded hover:bg-pink-700'>Shop Now</a></div>`;
+        document.getElementById('checkoutBtn').disabled = true;
+        document.getElementById('cartTotalRow').textContent = '';
+        return;
+      }
+      let total = 0;
+      container.innerHTML = cart.map((item, idx) => {
+        total += item.price * item.quantity;
+        return `
+          <div class='cart-item flex flex-col md:flex-row items-center bg-white rounded-lg shadow mb-4 p-4 gap-4'>
+            <img src='${item.image}' alt='${item.name}' class='w-24 h-24 object-cover rounded'>
+            <div class='flex-1'>
+              <h3 class='font-semibold text-lg mb-1'>${item.name}</h3>
+              <div class='text-gray-600 mb-1'>${utils.formatCurrency(item.price)} x <span id='qty-${idx}'>${item.quantity}</span></div>
+              <div class='flex gap-2 items-center mb-2'>
+                <button class='qty-btn bg-gray-200 rounded hover:bg-pink-100' onclick='updateQty(${idx}, -1)'><span class='material-icons'>remove</span></button>
+                <button class='qty-btn bg-gray-200 rounded hover:bg-pink-100' onclick='updateQty(${idx}, 1)'><span class='material-icons'>add</span></button>
+              </div>
+              <button class='text-pink-600 hover:underline mr-4' onclick='removeItem(${idx})'>Remove</button>
+              <button class='text-yellow-500 hover:underline' onclick='moveToWishlist(${idx})'>Move to Wishlist</button>
+            </div>
+            <div class='text-xl font-bold text-gray-800'>${utils.formatCurrency(item.price * item.quantity)}</div>
+          </div>
+        `;
+      }).join('');
+      document.getElementById('cartTotalRow').textContent = `Total: ${utils.formatCurrency(total)}`;
+      document.getElementById('checkoutBtn').disabled = false;
+    }
+
+    function updateQty(idx, delta) {
+      if (cart[idx].quantity + delta < 1) return;
+      cart[idx].quantity += delta;
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+      updateCartCount();
+    }
+
+    function removeItem(idx) {
+      cart.splice(idx, 1);
+      localStorage.setItem('cart', JSON.stringify(cart));
+      renderCart();
+      updateCartCount();
+    }
+
+    function moveToWishlist(idx) {
+      const id = cart[idx].id;
+      if (!wishlist.includes(id)) wishlist.push(id);
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      removeItem(idx);
+    }
+
+    document.getElementById('checkoutBtn').onclick = function() {
+      if (!cart.length) return;
+      window.location.href = 'checkout.html';
+    };
+
+    document.getElementById('cartApplyCoupon').onclick = function(){
+      const code = document.getElementById('cartCoupon').value.trim();
+      const total = cart.reduce((s,i)=>s+i.price*i.quantity,0);
+      const res = utils.applyCoupon(code, total);
+      document.getElementById('cartCouponMsg').textContent = res.msg;
+      if(res.ok){
+        const discounted = Math.max(0, total - res.discount);
+        document.getElementById('cartTotalRow').textContent = `Total: ${utils.formatCurrency(discounted)}`;
+      }
+    };
+
+    // Track Order logic (shared)
+    (function(){
+      const openBtn = document.getElementById('homeTrackBtn');
+      const modal = document.getElementById('homeTrackModal');
+      const closeBtn = document.getElementById('homeTrackClose');
+      const bar = document.getElementById('homeOrderProgress');
+      const statusText = document.getElementById('homeOrderStatus');
+      let intervalRef = null;
+      function startProgress(){
+        let progress = 30; bar.style.width = progress + '%'; statusText.textContent = 'Your order is being prepared...';
+        intervalRef && clearInterval(intervalRef);
+        intervalRef = setInterval(()=>{
+          if(progress < 100){
+            progress += 10; bar.style.width = progress + '%';
+            if(progress < 60) statusText.textContent = 'Your order is being prepared...';
+            else if(progress < 100) statusText.textContent = 'Out for delivery!';
+            else statusText.textContent = 'Delivered! Enjoy your purchase 👏';
+          } else { clearInterval(intervalRef); }
+        }, 1000);
+      }
+      if (openBtn){ openBtn.onclick = ()=>{ modal.classList.remove('hidden'); modal.classList.add('flex'); startProgress(); }; }
+      if (closeBtn){ closeBtn.onclick = ()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); intervalRef && clearInterval(intervalRef); }; }
+    })();
+
+    // Initial render
+    updateCartCount();
+    renderCart();
+  </script>
+</body>
+</html>

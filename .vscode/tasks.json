@@ -1,0 +1,22 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "serve-static",
+			"type": "shell",
+			"command": "npx --yes http-server -p 8080 -c-1 .",
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "custom",
+				"pattern": {
+					"regexp": ".*"
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "^(Starting up|Available on|Starting up http-server).*",
+					"endsPattern": "(Available on|http://127.0.0.1:8080|http://localhost:8080)"
+				}
+			}
+		}
+	]
+}

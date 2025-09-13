@@ -1,0 +1,94 @@
+/* ORDER PLEASE Custom Styles */
+
+:root {
+  --primary-gradient: linear-gradient(135deg, #ec4899 0%, #fbbf24 100%);
+  --primary: #ec4899;
+  --primary2: #fbbf24;
+  --dark-bg: #0f1115;
+  --dark-card: #151922;
+  --dark-text: #f3f4f6;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f8fafc;
+  color: #111827;
+  transition: background 0.3s, color 0.3s;
+}
+
+body.dark {
+  background: var(--dark-bg);
+  color: var(--dark-text);
+}
+
+.gradient-bg {
+  background: var(--primary-gradient);
+  background-size: 200% 200%;
+  animation: gradientShift 10s ease infinite;
+}
+@keyframes gradientShift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+/* 3D Card improvement */
+.card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color .25s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border: 1px solid rgba(236, 72, 153, 0.08);
+  border-radius: 1rem;
+  background-clip: padding-box;
+}
+.card-3d:hover {
+  transform: translateY(-6px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 18px 48px rgba(236,72,153,0.18);
+  border-color: rgba(236,72,153,0.25);
+}
+
+/* Category cards */
+.category-card {
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  border: 1px solid rgba(0,0,0,0.04);
+  border-radius: 1.25rem;
+}
+.category-card:hover { box-shadow: 0 14px 28px rgba(0,0,0,0.10); transform: translateY(-6px); border-color: rgba(236,72,153,0.25); }
+
+/* Product cards */
+.product-card { border-radius: 1rem; overflow: hidden; background: rgba(255,255,255,0.95); backdrop-filter: saturate(1.2) blur(2px); }
+body.dark .product-card { background: rgba(21,25,34,0.9); box-shadow: 0 16px 40px rgba(0,0,0,0.35); }
+
+/* Nav polish */
+nav { backdrop-filter: saturate(1.4) blur(6px); background: rgba(255,255,255,0.85) !important; }
+body.dark nav { background: rgba(15,17,21,0.65) !important; }
+
+/* Buttons (enhance existing utility buttons) */
+.btn-primary, .bg-pink-600 { background-image: linear-gradient(135deg, #ec4899 0%, #f472b6 50%, #ec4899 100%) !important; background-size: 180% 180%; transition: background-position .35s ease, transform .12s ease; }
+.btn-primary:hover, .bg-pink-600:hover { background-position: 100% 0; transform: translateY(-1px); }
+.bg-yellow-400 { box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05); transition: transform .12s ease, box-shadow .25s ease; }
+.bg-yellow-400:hover { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(251,191,36,.35); }
+
+/* Inputs */
+input, select, textarea { border-radius: 0.75rem; border-color: #e5e7eb; }
+input:focus, select:focus, textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(236,72,153,0.15); }
+
+/* Modals */
+.modal-bg { background: radial-gradient(1200px 600px at 100% 0%, rgba(236,72,153,.15), transparent 60%), rgba(0,0,0,0.55); backdrop-filter: blur(4px); }
+
+/* Floating buttons */
+.fixed button { box-shadow: 0 12px 30px rgba(0,0,0,.18); }
+
+/* Tables (admin) */
+.table-compact thead tr { letter-spacing: .2px; }
+.table-compact tbody tr:hover { background: rgba(236,72,153,0.06); }
+
+/* Scrollbar */
+*::-webkit-scrollbar { width: 10px; height: 10px; }
+*::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #fda4af, #facc15); border-radius: 999px; }
+*::-webkit-scrollbar-track { background: transparent; }
+
+/* Toasts (admin) already defined, minor glow */
+.toast { border-left-color: #ec4899; box-shadow: 0 12px 30px rgba(236,72,153,.18); }
+
+/* Headings accent */
+.h-accent { background: linear-gradient(90deg, #ec4899, #fbbf24); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+/* Link hover */
+a:hover { filter: saturate(1.15); }

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Admin Panel</title>
+  <link rel="stylesheet" href="admin.css">
+  <link rel="stylesheet" href="../../styles.css">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="../../products.js"></script>
+  <script src="../../orders.js"></script>
+</head>
+<body class="bg-gray-50">
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="../../index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="../../index.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium">Storefront</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Admin Login -->
+  <section id="adminLogin" class="py-10">
+    <div class="max-w-md mx-auto px-4">
+      <div class="bg-white rounded-xl shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-4 text-center">Admin Login</h1>
+        <form id="adminLoginForm">
+          <label class="text-sm text-gray-600">Email</label>
+          <input id="adminEmail" type="email" class="border rounded px-4 py-2 w-full mb-3" placeholder="admin@orderplease.com" required/>
+          <label class="text-sm text-gray-600">Password</label>
+          <div class="relative mb-4">
+            <input id="adminPass" type="password" class="border rounded px-4 py-2 w-full pr-10" placeholder="••••••••" required/>
+            <button type="button" id="togglePass" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-pink-600">
+              <span class="material-icons">visibility</span>
+            </button>
+          </div>
+          <div id="adminError" class="text-red-600 text-sm mb-3 hidden">Invalid credentials</div>
+          <button type="submit" class="bg-pink-600 text-white px-6 py-2 rounded w-full hover:bg-pink-700">Login</button>
+        </form>
+        <div class="text-xs text-gray-500 mt-3 text-center">Demo: admin@orderplease.com / admin123</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Admin Panel -->
+  <section id="adminPanel" class="hidden py-10">
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="max-w-7xl mx-auto px-4">
+      <!-- Dashboard Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-xl shadow p-4 text-center card-hover">
+          <div class="text-sm text-gray-500">Products</div>
+          <div id="metricProducts" class="text-3xl font-bold">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 text-center card-hover">
+          <div class="text-sm text-gray-500">Active Orders</div>
+          <div id="metricOrders" class="text-3xl font-bold">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 text-center card-hover">
+          <div class="text-sm text-gray-500">Users</div>
+          <div id="metricUsers" class="text-3xl font-bold">0</div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4 text-center card-hover">
+          <div class="text-sm text-gray-500">Alerts</div>
+          <div id="metricAlerts" class="text-3xl font-bold">0</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow p-4 md:col-span-2">
+          <div class="sticky-actions flex gap-2 items-center">
+            <span class="material-icons text-pink-600">campaign</span>
+            <div class="font-semibold">Notifications</div>
+          </div>
+          <div id="notifList" class="notifications mt-2 text-sm"></div>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+          <div class="sticky-actions flex gap-2 items-center">
+            <span class="material-icons text-pink-600">history</span>
+            <div class="font-semibold">Audit Log</div>
+          </div>
+          <div id="auditList" class="notifications mt-2 text-xs"></div>
+        </div>
+      </div>
+
+      <div class="mb-4 flex gap-2">
+        <button data-tab="tabProducts" class="bg-pink-600 text-white px-4 py-2 rounded">Products</button>
+        <button data-tab="tabOrders" class="bg-gray-200 px-4 py-2 rounded">Orders</button>
+        <button data-tab="tabUsers" class="bg-gray-200 px-4 py-2 rounded">Users</button>
+      </div>
+
+      <div id="tabProducts" class="bg-white rounded-xl shadow p-4">
+        <h2 class="text-xl font-bold mb-4">Manage Products</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <input id="pName" class="border rounded px-3 py-2" placeholder="Name"/>
+          <input id="pPrice" type="number" class="border rounded px-3 py-2" placeholder="Price"/>
+          <input id="pCategory" class="border rounded px-3 py-2" placeholder="Category"/>
+          <input id="pSubcategory" class="border rounded px-3 py-2" placeholder="Subcategory"/>
+          <input id="pImage" class="border rounded px-3 py-2" placeholder="Image URL"/>
+          <input id="pStock" type="number" class="border rounded px-3 py-2" placeholder="Stock"/>
+        </div>
+        <div class="flex gap-2 mb-2">
+          <button id="addProductBtn" class="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500">Add / Update Product</button>
+          <button id="exportProducts" class="bg-gray-200 px-3 py-1 rounded">Export CSV</button>
+          <label class="bg-gray-200 px-3 py-1 rounded cursor-pointer">
+            Import CSV<input id="importProducts" type="file" accept=".csv" class="hidden">
+          </label>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-compact">
+            <thead>
+              <tr class="bg-pink-100"><th class="px-2 py-2">ID</th><th class="px-2 py-2">Name</th><th class="px-2 py-2">Category</th><th class="px-2 py-2">Price</th><th class="px-2 py-2">Stock</th><th class="px-2 py-2">Actions</th></tr>
+            </thead>
+            <tbody id="productRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabOrders" class="hidden bg-white rounded-xl shadow p-4">
+        <h2 class="text-xl font-bold mb-4">Manage Orders</h2>
+        <div class="flex flex-col md:flex-row md:items-center gap-3 mb-3">
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600">Filter:</label>
+            <select id="orderFilter" class="border rounded px-2 py-1">
+              <option value="ALL">All</option>
+              <option value="Pending">Pending</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Canceled">Canceled</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2 flex-1">
+            <label class="text-sm text-gray-600">Search:</label>
+            <input id="orderSearch" class="border rounded px-2 py-1 w-full" placeholder="Order #, email, item name">
+          </div>
+          <div class="text-xs text-gray-500" id="ordersUpdated">Updated just now</div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-compact">
+            <thead>
+              <tr class="bg-pink-100"><th class="px-2 py-2">Order #</th><th class="px-2 py-2">User</th><th class="px-2 py-2">Items</th><th class="px-2 py-2">Status</th><th class="px-2 py-2">Actions</th></tr>
+            </thead>
+            <tbody id="orderRows"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabUsers" class="hidden bg-white rounded-xl shadow p-4">
+        <h2 class="text-xl font-bold mb-4">Manage Users</h2>
+        <div class="flex gap-2 mb-2">
+          <button id="exportUsers" class="bg-gray-200 px-3 py-1 rounded">Export CSV</button>
+          <label class="bg-gray-200 px-3 py-1 rounded cursor-pointer">
+            Import CSV<input id="importUsers" type="file" accept=".csv" class="hidden">
+          </label>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full table-compact">
+            <thead>
+              <tr class="bg-pink-100"><th class="px-2 py-2">Name</th><th class="px-2 py-2">Email</th><th class="px-2 py-2">Mobile</th><th class="px-2 py-2">Orders</th><th class="px-2 py-2">Actions</th></tr>
+            </thead>
+            <tbody id="userRows"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="admin.js"></script>
+  <script>
+    const ADMIN_CREDENTIAL = { email:'admin@orderplease.com', pass:'admin123' };
+    const adminLogin = document.getElementById('adminLogin');
+    const adminPanel = document.getElementById('adminPanel');
+
+    // Admin session helpers
+    function getAdminSession(){ return localStorage.getItem('adminSession') === '1'; }
+    function setAdminSession(v){ localStorage.setItem('adminSession', v ? '1' : '0'); }
+
+    // Robust login: handle form submit, show inline errors, and focus
+    document.getElementById('adminLoginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = (document.getElementById('adminEmail').value||'').trim().toLowerCase();
+      const pass = (document.getElementById('adminPass').value||'').trim();
+      const errorEl = document.getElementById('adminError');
+      errorEl.classList.add('hidden');
+      if(email === ADMIN_CREDENTIAL.email && pass === ADMIN_CREDENTIAL.pass){
+        setAdminSession(true);
+        adminLogin.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+        loadDashboard();
+      } else {
+        errorEl.textContent = 'Incorrect email or password.';
+        errorEl.classList.remove('hidden');
+        document.getElementById('adminPass').focus();
+      }
+    });
+    // Show/Hide password toggle
+    document.getElementById('togglePass').onclick = function(){
+      const input = document.getElementById('adminPass');
+      const isPwd = input.type === 'password';
+      input.type = isPwd ? 'text' : 'password';
+      this.querySelector('.material-icons').textContent = isPwd ? 'visibility_off' : 'visibility';
+    };
+
+    // Auto-open admin panel if session exists (after refresh)
+    (function(){
+      if (getAdminSession()){
+        adminLogin.classList.add('hidden');
+        adminPanel.classList.remove('hidden');
+        loadDashboard();
+      } else {
+        // Focus email on first load for better UX
+        const emailInput = document.getElementById('adminEmail');
+        emailInput && emailInput.focus();
+      }
+    })();
+
+    document.querySelectorAll('[data-tab]').forEach(btn=>{
+      btn.onclick = ()=>{
+        document.querySelectorAll('[id^="tab"]').forEach(t=>t.classList.add('hidden'));
+        document.getElementById(btn.getAttribute('data-tab')).classList.remove('hidden');
+      };
+    });
+
+    function getProducts(){ return JSON.parse(localStorage.getItem('productsStore')||'[]'); }
+    function setProducts(arr){ localStorage.setItem('productsStore', JSON.stringify(arr)); }
+    if(!localStorage.getItem('productsStore')) setProducts(products);
+
+    function getUsers(){ return JSON.parse(localStorage.getItem('usersStore')||'[]'); }
+    function setUsers(arr){ localStorage.setItem('usersStore', JSON.stringify(arr)); }
+    if(!localStorage.getItem('usersStore')) setUsers([{name:'Demo User', email:'demo@user.com', mobile:'9999999999'}]);
+
+    function getOrders(){ return JSON.parse(localStorage.getItem('orders')||'[]'); }
+
+    function loadDashboard(){
+      refreshMetrics();
+      renderProductsTable();
+      renderOrdersTable();
+      renderUsersTable();
+      renderNotifications();
+      renderAudit();
+      setupLiveRefresh();
+    }
+    function refreshMetrics(){
+      document.getElementById('metricProducts').textContent = getProducts().length;
+      document.getElementById('metricOrders').textContent = getOrders().length;
+      document.getElementById('metricUsers').textContent = getUsers().length;
+      document.getElementById('metricAlerts').textContent = getOrders().filter(o=>o.status!=='Delivered').length;
+    }
+    function renderNotifications(){
+      const list = adminUtils.getNotifications();
+      document.getElementById('notifList').innerHTML = list.map(n=>`<div>• ${n.text} <span class='text-gray-400'>(${n.time})</span></div>`).join('')||'<div class="text-gray-400">No notifications</div>';
+    }
+    function renderAudit(){
+      const list = adminUtils.getAudit();
+      document.getElementById('auditList').innerHTML = list.map(a=>`<div>• [${a.action}] ${a.detail} <span class='text-gray-400'>${a.time}</span></div>`).join('')||'<div class="text-gray-400">No activity</div>';
+    }
+
+    let editingId = null;
+    document.getElementById('addProductBtn').onclick = function(){
+      const p = {
+        id: editingId || Date.now(),
+        name: document.getElementById('pName').value,
+        price: parseFloat(document.getElementById('pPrice').value||'0'),
+        category: document.getElementById('pCategory').value,
+        subcategory: document.getElementById('pSubcategory').value,
+        image: document.getElementById('pImage').value,
+        stock: parseInt(document.getElementById('pStock').value||'0'),
+        rating: 0, reviews: 0, description: ''
+      };
+      const list = getProducts();
+      const idx = list.findIndex(x=>x.id===p.id);
+      if(idx>=0) list[idx] = p; else list.push(p);
+      setProducts(list);
+      editingId = null;
+      renderProductsTable();
+      adminUtils.pushNotification(`Product saved: ${p.name}`); renderNotifications();
+      adminUtils.audit('PRODUCT_SAVE', p.name); renderAudit();
+      alert('Product saved');
+    };
+    function renderProductsTable(){
+      const rows = getProducts().map(p=>`<tr>
+        <td class='px-2 py-2'>${p.id}</td>
+        <td class='px-2 py-2'>${p.name}</td>
+        <td class='px-2 py-2'>${p.category}</td>
+        <td class='px-2 py-2'>${p.price}</td>
+        <td class='px-2 py-2'>${p.stock}</td>
+        <td class='px-2 py-2'>
+          <button class='text-pink-600' onclick='editProduct(${p.id})'>Edit</button>
+          <button class='text-red-600 ml-2' onclick='deleteProduct(${p.id})'>Delete</button>
+        </td>
+      </tr>`).join('');
+      document.getElementById('productRows').innerHTML = rows || '<tr><td class="px-2 py-2" colspan="6">No products</td></tr>';
+    }
+    window.editProduct = function(id){
+      const p = getProducts().find(x=>x.id===id); if(!p) return;
+      editingId = p.id;
+      document.getElementById('pName').value = p.name;
+      document.getElementById('pPrice').value = p.price;
+      document.getElementById('pCategory').value = p.category;
+      document.getElementById('pSubcategory').value = p.subcategory;
+      document.getElementById('pImage').value = p.image;
+      document.getElementById('pStock').value = p.stock;
+    };
+    window.deleteProduct = function(id){
+      const list = getProducts().filter(x=>x.id!==id); setProducts(list); renderProductsTable();
+      const name = id; adminUtils.pushNotification(`Product deleted: ${name}`); renderNotifications(); adminUtils.audit('PRODUCT_DELETE', name); renderAudit();
+    };
+
+    function renderOrdersTable(){
+      const filter = (document.getElementById('orderFilter')?.value)||'ALL';
+      const q = (document.getElementById('orderSearch')?.value||'').toLowerCase();
+      const list = getOrders();
+      const filtered = list.filter(o => {
+        const okStatus = (filter==='ALL') || ((o.status||'Pending')===filter);
+        if(!okStatus) return false;
+        const hay = `${o.id} ${o.user?.email||''} ${(o.items||[]).map(i=>i.name).join(' ')}`.toLowerCase();
+        return hay.includes(q);
+      });
+      const rows = filtered.map(o=>`<tr>
+        <td class='px-2 py-2'>#${o.id}</td>
+        <td class='px-2 py-2'>${o.user?.email||'-'}</td>
+        <td class='px-2 py-2'>${o.items?.map(i=>`${i.name} <span class=\"text-xs text-gray-500\">x${i.quantity}</span>`).join(', ')||'-'}</td>
+        <td class='px-2 py-2'>${badge(o.status||'Pending')}</td>
+        <td class='px-2 py-2'>
+          <select onchange='updateOrderStatusAdmin(${o.id}, this.value)' class='border rounded px-2 py-1'>
+            <option ${o.status==='Pending'?'selected':''}>Pending</option>
+            <option ${o.status==='Shipped'?'selected':''}>Shipped</option>
+            <option ${o.status==='Delivered'?'selected':''}>Delivered</option>
+            <option ${o.status==='Canceled'?'selected':''}>Canceled</option>
+          </select>
+        </td>
+      </tr>`).join('');
+      document.getElementById('orderRows').innerHTML = rows || '<tr><td class="px-2 py-2" colspan="5">No orders</td></tr>';
+      const stamp = new Date().toLocaleTimeString();
+      const upd = document.getElementById('ordersUpdated'); if(upd) upd.textContent = `Updated ${stamp}`;
+    }
+    function badge(status){
+      const cls = status==='Delivered' ? 'badge badge-green' : status==='Shipped' ? 'badge badge-yellow' : status==='Canceled' ? 'badge badge-red' : 'badge';
+      return `<span class='${cls}'>${status}</span>`;
+    }
+    window.updateOrderStatusAdmin = function(id, status){
+      const list = getOrders(); const idx = list.findIndex(o=>o.id===id); if(idx<0) return;
+      list[idx].status = status; localStorage.setItem('orders', JSON.stringify(list));
+      renderOrdersTable(); adminUtils.pushNotification(`Order #${id} → ${status}`); renderNotifications(); adminUtils.audit('ORDER_STATUS', `#${id} → ${status}`); renderAudit();
+      alert('Order status updated');
+    };
+
+    function renderUsersTable(){
+      const rows = getUsers().map(u=>`<tr>
+        <td class='px-2 py-2'>${u.name||'-'}</td>
+        <td class='px-2 py-2'>${u.email||'-'}</td>
+        <td class='px-2 py-2'>${u.mobile||'-'}</td>
+        <td class='px-2 py-2'>${(getOrders().filter(o=>o.user?.email===u.email).length)}</td>
+        <td class='px-2 py-2'>
+          <button class='text-red-600' onclick='deleteUser("${u.email}")'>Delete</button>
+        </td>
+      </tr>`).join('');
+      document.getElementById('userRows').innerHTML = rows || '<tr><td class="px-2 py-2" colspan="5">No users</td></tr>';
+    }
+    window.deleteUser = function(email){
+      const list = getUsers().filter(x=>x.email!==email); setUsers(list); renderUsersTable();
+      adminUtils.pushNotification(`User deleted: ${email}`); renderNotifications(); adminUtils.audit('USER_DELETE', email); renderAudit();
+    };
+
+    document.getElementById('exportProducts').onclick = function(){ adminUtils.downloadCSV('products.csv', adminUtils.toCSV(getProducts())); };
+    document.getElementById('importProducts').onchange = async function(e){
+      const text = await e.target.files[0].text(); const rows = adminUtils.importCSV(text); setProducts(rows); renderProductsTable(); adminUtils.pushNotification('Products imported'); renderNotifications(); adminUtils.audit('PRODUCT_IMPORT', rows.length+' rows'); renderAudit(); };
+    document.getElementById('exportUsers').onclick = function(){ adminUtils.downloadCSV('users.csv', adminUtils.toCSV(getUsers())); };
+    document.getElementById('importUsers').onchange = async function(e){
+      const text = await e.target.files[0].text(); const rows = adminUtils.importCSV(text); setUsers(rows); renderUsersTable(); adminUtils.pushNotification('Users imported'); renderNotifications(); adminUtils.audit('USER_IMPORT', rows.length+' rows'); renderAudit(); };
+
+    document.getElementById('orderFilter').onchange = renderOrdersTable;
+    document.getElementById('orderSearch').oninput = renderOrdersTable;
+
+    // Live refresh via storage events and polling fallback
+    function setupLiveRefresh(){
+      window.addEventListener('storage', (e)=>{
+        if(['orders','admin_notifications','productsStore','usersStore'].includes(e.key)){
+          refreshMetrics(); renderOrdersTable(); renderNotifications(); renderProductsTable(); renderUsersTable();
+        }
+      });
+      setInterval(()=>{ refreshMetrics(); renderOrdersTable(); renderNotifications(); }, 1000);
+      try{
+        const bc = new BroadcastChannel('orders_channel');
+        bc.onmessage = (e)=>{
+          if(e.data && e.data.type === 'NEW_ORDER'){
+            refreshMetrics(); renderOrdersTable(); renderNotifications();
+            showToast(`New order #${e.data.id} placed`);
+          }
+        };
+      }catch(_){/* ignore if not supported */}
+    }
+
+    function showToast(message){
+      const wrap = document.getElementById('toastContainer');
+      const div = document.createElement('div');
+      div.className = 'toast';
+      div.innerHTML = `<span class="material-icons icon">notifications_active</span><span>${message}</span>`;
+      wrap.appendChild(div);
+      setTimeout(()=>{ div.remove(); }, 5000);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ORDER PLEASE - Product Details</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <link rel="stylesheet" href="styles.css">
+  <script src="search.js"></script>
+  <script src="qa.js"></script>
+  <script src="ai.js"></script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .star-rating { color: #fbbf24; }
+    .carousel-thumb.selected { border: 2px solid #ec4899; }
+    .carousel-thumb { cursor: pointer; }
+    .viewer-controls button.active { background: #fbbf24; color: #fff; }
+    .review-star { cursor: pointer; }
+    .review-star.selected { color: #ec4899; }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navigation (reuse from index.html) -->
+  <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <div class="flex-shrink-0">
+            <a href="index.html" class="text-2xl font-bold gradient-bg bg-clip-text text-transparent">ORDER PLEASE</a>
+          </div>
+        </div>
+        <div class="hidden md:block flex-1 max-w-lg mx-8">
+          <div class="relative">
+            <input type="text" id="searchInput" placeholder="Search for products..." class="w-full px-4 py-2 pl-10 pr-16 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span class="material-icons text-gray-400">search</span>
+            </div>
+            <div class="absolute inset-y-0 right-0 pr-2 flex items-center gap-2">
+              <button id="voiceBtn" class="text-gray-500 hover:text-pink-600"><span class="material-icons">mic</span></button>
+            </div>
+          </div>
+        </div>
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="#" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">favorite</span>Wishlist</a>
+          <a href="cart.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">shopping_cart</span>Cart <span id="cartCount" class="bg-pink-500 text-white text-xs rounded-full px-2 py-1 ml-1">0</span></a>
+          <a href="login.html" class="text-gray-700 hover:text-pink-600 px-3 py-2 rounded-md text-sm font-medium"><span class="material-icons mr-1">person</span>Account</a>
+        </div>
+        <div class="md:hidden">
+          <button id="mobileMenuBtn" class="text-gray-700 hover:text-pink-600"><span class="material-icons text-2xl">menu</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Product Details Section -->
+  <section class="py-10">
+    <div class="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-10">
+      <!-- Left: Images & 3D Viewer -->
+      <div>
+        <!-- Image Carousel -->
+        <div class="mb-6">
+          <img id="mainImage" src="https://images.unsplash.com/photo-1592899677977-9c8c0c63ef10?w=600" alt="Product" class="w-full h-80 object-cover rounded-lg shadow">
+          <div class="flex gap-2 mt-3">
+            <img src="https://images.unsplash.com/photo-1592899677977-9c8c0c63ef10?w=600" class="w-16 h-16 object-cover rounded carousel-thumb selected" onclick="selectImage(0)">
+            <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600" class="w-16 h-16 object-cover rounded carousel-thumb" onclick="selectImage(1)">
+            <img src="https://images.unsplash.com/photo-1511707171631-9e0d3173ef25?w=600" class="w-16 h-16 object-cover rounded carousel-thumb" onclick="selectImage(2)">
+          </div>
+        </div>
+        <!-- 3D Viewer -->
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <h3 class="font-semibold text-gray-800">3D Product Viewer</h3>
+            <div class="viewer-controls flex gap-2">
+              <button id="rotateBtn" class="px-2 py-1 rounded" title="Auto-Rotate"><span class="material-icons">autorenew</span></button>
+              <button id="zoomInBtn" class="px-2 py-1 rounded" title="Zoom In"><span class="material-icons">zoom_in</span></button>
+              <button id="zoomOutBtn" class="px-2 py-1 rounded" title="Zoom Out"><span class="material-icons">zoom_out</span></button>
+              <button id="wireframeBtn" class="px-2 py-1 rounded" title="Wireframe"><span class="material-icons">grid_on</span></button>
+              <button id="resetBtn" class="px-2 py-1 rounded" title="Reset"><span class="material-icons">refresh</span></button>
+              <button id="fullscreenBtn" class="px-2 py-1 rounded" title="Fullscreen"><span class="material-icons">fullscreen</span></button>
+            </div>
+          </div>
+          <div id="viewer" class="w-full h-64 bg-gray-100 rounded"></div>
+        </div>
+      </div>
+      <!-- Right: Product Info -->
+      <div>
+        <h1 class="text-3xl font-bold mb-2" id="productName">iPhone 15 Pro Max</h1>
+        <div class="flex items-center mb-2">
+          <div class="star-rating flex" id="productRating">★★★★☆</div>
+          <span class="text-gray-500 text-sm ml-2" id="reviewCount">(1247 reviews)</span>
+        </div>
+        <div class="text-2xl font-bold text-pink-600 mb-2" id="productPrice">$1199</div>
+        <div class="mb-4 text-gray-700" id="productDesc">The latest iPhone with advanced 3D camera and A17 chip. Stunning design and performance.</div>
+        <ul class="mb-4 text-gray-600 text-sm" id="productSpecs">
+          <li>• 6.7-inch display</li>
+          <li>• A17 Bionic</li>
+          <li>• Triple Camera</li>
+        </ul>
+        <div class="flex gap-2 mb-4">
+          <button class="bg-pink-600 text-white px-6 py-2 rounded-lg hover:bg-pink-700 transition-colors ripple" onclick="addToCart(1)"><span class="material-icons mr-1">add_shopping_cart</span>Add to Cart</button>
+          <button class="bg-yellow-400 text-black px-6 py-2 rounded-lg hover:bg-yellow-500 transition-colors ripple" onclick="toggleWishlist(1)"><span class="material-icons mr-1">favorite_border</span>Wishlist</button>
+        </div>
+        <div class="mb-4">
+          <span class="font-semibold">Stock:</span> <span id="productStock">10</span>
+        </div>
+        <div class="mb-4">
+          <span class="font-semibold">Category:</span> <span id="productCategory">Electronics</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section class="py-8 bg-white">
+    <div class="max-w-3xl mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-4">Customer Reviews</h2>
+      <div id="reviewsList" class="mb-6">
+        <!-- Reviews will be rendered here -->
+      </div>
+      <div class="bg-gray-50 p-4 rounded-lg shadow">
+        <h3 class="font-semibold mb-2">Write a Review</h3>
+        <div class="flex items-center mb-2" id="reviewStars">
+          <span class="material-icons review-star" data-star="1">star_border</span>
+          <span class="material-icons review-star" data-star="2">star_border</span>
+          <span class="material-icons review-star" data-star="3">star_border</span>
+          <span class="material-icons review-star" data-star="4">star_border</span>
+          <span class="material-icons review-star" data-star="5">star_border</span>
+        </div>
+        <textarea id="reviewText" rows="3" class="w-full border rounded p-2 mb-2" placeholder="Share your experience..."></textarea>
+        <button class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700" onclick="submitReview()">Submit Review</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Q&A Section -->
+  <section class="py-8 bg-white">
+    <div class="max-w-3xl mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-4">Questions & Answers</h2>
+      <div class="flex gap-2 mb-4">
+        <input id="qa_question" class="border rounded px-3 py-2 flex-1" placeholder="Ask a question about this product"/>
+        <button class="bg-pink-600 text-white px-4 py-2 rounded hover:bg-pink-700" onclick="askQuestion(product.id)">Ask</button>
+      </div>
+      <div id="qa_list"></div>
+    </div>
+  </section>
+
+  <!-- Photo/Video Reviews -->
+  <section class="py-8 bg-gray-50">
+    <div class="max-w-3xl mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-4">Photo/Video Reviews</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+        <select id="media_rating" class="border rounded px-2 py-2">
+          <option value="5">★★★★★</option>
+          <option value="4">★★★★☆</option>
+          <option value="3">★★★☆☆</option>
+          <option value="2">★★☆☆☆</option>
+          <option value="1">★☆☆☆☆</option>
+        </select>
+        <input id="media_text" class="border rounded px-2 py-2" placeholder="Share your experience"/>
+        <input id="media_file" type="file" accept="image/*,video/*" class="border rounded px-2 py-2"/>
+      </div>
+      <button class="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-500 mb-4" onclick="submitMedia(product.id)">Upload Review</button>
+      <div id="media_list"></div>
+    </div>
+  </section>
+
+  <!-- Frequently Bought Together Section -->
+  <section class="py-8 bg-yellow-50">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-4">Frequently Bought Together</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="fbtSection"></div>
+      <button id="addAllFbtBtn" class="mt-4 bg-pink-600 text-white px-6 py-2 rounded hover:bg-pink-700 transition-colors ripple">Add All to Cart</button>
+    </div>
+  </section>
+  <!-- Similar Products Section -->
+  <section class="py-8 bg-pink-50">
+    <div class="max-w-4xl mx-auto px-4">
+      <h2 class="text-2xl font-bold mb-4">Similar Products</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="similarSection"></div>
+    </div>
+  </section>
+
+  <!-- Floating Track Order Button -->
+  <div class="fixed bottom-4 left-4 z-50">
+    <button id="homeTrackBtn" class="bg-yellow-400 text-black p-4 rounded-full shadow-lg hover:bg-yellow-500 transition-colors" title="Track Order">
+      <span class="material-icons">location_on</span>
+    </button>
+  </div>
+  <!-- Track Order Modal -->
+  <div id="homeTrackModal" class="fixed inset-0 hidden modal-bg z-50 items-center justify-center">
+    <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md relative">
+      <button id="homeTrackClose" class="absolute top-2 right-2 text-gray-500 hover:text-pink-600"><span class="material-icons">close</span></button>
+      <h3 class="text-xl font-bold mb-2">Order Tracking</h3>
+      <div class="w-full bg-gray-200 rounded-full h-4 mb-2">
+        <div id="homeOrderProgress" class="bg-pink-500 h-4 rounded-full transition-all" style="width: 30%"></div>
+      </div>
+      <div class="flex justify-between text-xs text-gray-600 mb-2">
+        <span>Order Placed</span><span>Out for Delivery</span><span>Delivered</span>
+      </div>
+      <div id="homeOrderStatus" class="text-center text-pink-600 font-semibold">Your order is being prepared...</div>
+    </div>
+  </div>
+
+  <script>
+    // On page load, get product by ID from URL, render all details, images, 3D viewer, specs, reviews, and similar products. Use Intl.NumberFormat for currency. Add review/photo upload. Add 3D animated UI.
+    // Product data (should be fetched by ID in real app)
+    const product = {
+      id: 1,
+      name: "iPhone 15 Pro Max",
+      category: "Electronics",
+      subcategory: "Mobiles",
+      price: 1199,
+      description: "The latest iPhone with advanced 3D camera and A17 chip. Stunning design and performance.",
+      image: "https://images.unsplash.com/photo-1592899677977-9c8c0c63ef10?w=600",
+      model: "https://model-url.glb", // Replace with real GLB/GLTF model
+      stock: 10,
+      rating: 4.8,
+      reviews: 1247,
+      specs: ["6.7-inch display","A17 Bionic","Triple Camera"],
+      images: [
+        "https://images.unsplash.com/photo-1592899677977-9c8c0c63ef10?w=600",
+        "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600",
+        "https://images.unsplash.com/photo-1511707171631-9e0d3173ef25?w=600"
+      ]
+    };
+    let reviews = [
+      {name: "Alice", rating: 5, text: "Amazing phone! The 3D view helped me decide."},
+      {name: "Bob", rating: 4, text: "Great performance, but a bit pricey."}
+    ];
+    let selectedImage = 0;
+    let selectedReviewStar = 0;
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+    // Image carousel logic
+    function selectImage(idx) {
+      selectedImage = idx;
+      document.getElementById('mainImage').src = product.images[idx];
+      document.querySelectorAll('.carousel-thumb').forEach((el, i) => {
+        el.classList.toggle('selected', i === idx);
+      });
+    }
+
+    // Add to cart
+    function addToCart(id) {
+      const existing = cart.find(item => item.id === id);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ ...product, quantity: 1 });
+      }
+      localStorage.setItem('cart', JSON.stringify(cart));
+      alert(`${product.name} added to cart!`);
+    }
+
+    // Wishlist
+    function toggleWishlist(id) {
+      if (wishlist.includes(id)) {
+        wishlist = wishlist.filter(pid => pid !== id);
+      } else {
+        wishlist.push(id);
+      }
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      alert(wishlist.includes(id) ? 'Added to wishlist!' : 'Removed from wishlist!');
+    }
+
+    // Render reviews
+    function renderReviews() {
+      const list = document.getElementById('reviewsList');
+      if (!reviews.length) {
+        list.innerHTML = '<div class="text-gray-500">No reviews yet.</div>';
+        return;
+      }
+      list.innerHTML = reviews.map(r => `
+        <div class="mb-3 p-3 bg-gray-100 rounded">
+          <div class="flex items-center mb-1">
+            <div class="star-rating">${'★'.repeat(r.rating)}${'☆'.repeat(5 - r.rating)}</div>
+            <span class="ml-2 font-semibold">${r.name}</span>
+          </div>
+          <div class="text-gray-700">${r.text}</div>
+        </div>
+      `).join('');
+    }
+
+    // Review star selection
+    document.querySelectorAll('.review-star').forEach(star => {
+      star.onclick = function() {
+        selectedReviewStar = parseInt(this.getAttribute('data-star'));
+        document.querySelectorAll('.review-star').forEach((s, i) => {
+          s.textContent = i < selectedReviewStar ? 'star' : 'star_border';
+          s.classList.toggle('selected', i < selectedReviewStar);
+        });
+      };
+    });
+
+    // Submit review
+    function submitReview() {
+      const text = document.getElementById('reviewText').value.trim();
+      if (!selectedReviewStar || !text) {
+        alert('Please select a rating and write a review.');
+        return;
+      }
+      reviews.unshift({name: 'You', rating: selectedReviewStar, text});
+      document.getElementById('reviewText').value = '';
+      selectedReviewStar = 0;
+      document.querySelectorAll('.review-star').forEach((s, i) => {
+        s.textContent = 'star_border';
+        s.classList.remove('selected');
+      });
+      renderReviews();
+    }
+
+    // 3D Viewer (basic setup)
+    let scene, camera, renderer, model, controls, autoRotate = false, wireframe = false;
+    function init3DViewer() {
+      const container = document.getElementById('viewer');
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, container.offsetWidth/container.offsetHeight, 0.1, 1000);
+      camera.position.set(0, 1, 3);
+      renderer = new THREE.WebGLRenderer({antialias:true,alpha:true});
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+      container.appendChild(renderer.domElement);
+      // Lighting
+      const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.2);
+      scene.add(hemiLight);
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      dirLight.position.set(3, 10, 10);
+      scene.add(dirLight);
+      // Load model (placeholder cube if no model)
+      if (product.model && product.model.endsWith('.glb')) {
+        const loader = new THREE.GLTFLoader();
+        loader.load(product.model, gltf => {
+          model = gltf.scene;
+          scene.add(model);
+        }, undefined, err => {
+          addFallbackCube();
+        });
+      } else {
+        addFallbackCube();
+      }
+      animate();
+    }
+    function addFallbackCube() {
+      const geometry = new THREE.BoxGeometry();
+      const material = new THREE.MeshStandardMaterial({color:0xec4899});
+      model = new THREE.Mesh(geometry, material);
+      scene.add(model);
+    }
+    function animate() {
+      requestAnimationFrame(animate);
+      if (autoRotate && model) model.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    // Controls
+    document.getElementById('rotateBtn').onclick = function() { autoRotate = !autoRotate; this.classList.toggle('active', autoRotate); };
+    document.getElementById('zoomInBtn').onclick = function() { camera.position.z -= 0.3; };
+    document.getElementById('zoomOutBtn').onclick = function() { camera.position.z += 0.3; };
+    document.getElementById('wireframeBtn').onclick = function() {
+      wireframe = !wireframe;
+      if (model) model.traverse(obj => { if (obj.isMesh) obj.material.wireframe = wireframe; });
+      this.classList.toggle('active', wireframe);
+    };
+    document.getElementById('resetBtn').onclick = function() { camera.position.set(0,1,3); if (model) model.rotation.set(0,0,0); };
+    document.getElementById('fullscreenBtn').onclick = function() {
+      const viewer = document.getElementById('viewer');
+      if (viewer.requestFullscreen) viewer.requestFullscreen();
+    };
+    // Responsive
+    window.addEventListener('resize', () => {
+      const container = document.getElementById('viewer');
+      camera.aspect = container.offsetWidth/container.offsetHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.offsetWidth, container.offsetHeight);
+    });
+
+    // On load
+    window.onload = function() {
+      renderReviews();
+      init3DViewer();
+      renderFrequentlyBoughtTogether(product);
+      renderSimilarProducts(product);
+      renderQA('qa_list', product.id);
+      renderMedia('media_list', product.id);
+      attachVoiceSearch('searchInput','voiceBtn');
+    };
+
+    // Track Order logic (shared)
+    (function(){
+      const openBtn = document.getElementById('homeTrackBtn');
+      const modal = document.getElementById('homeTrackModal');
+      const closeBtn = document.getElementById('homeTrackClose');
+      const bar = document.getElementById('homeOrderProgress');
+      const statusText = document.getElementById('homeOrderStatus');
+      let intervalRef = null;
+      function startProgress(){
+        let progress = 30; bar.style.width = progress + '%'; statusText.textContent = 'Your order is being prepared...';
+        intervalRef && clearInterval(intervalRef);
+        intervalRef = setInterval(()=>{
+          if(progress < 100){
+            progress += 10; bar.style.width = progress + '%';
+            if(progress < 60) statusText.textContent = 'Your order is being prepared...';
+            else if(progress < 100) statusText.textContent = 'Out for delivery!';
+            else statusText.textContent = 'Delivered! Enjoy your purchase 👏';
+          } else { clearInterval(intervalRef); }
+        }, 1000);
+      }
+      if (openBtn){ openBtn.onclick = ()=>{ modal.classList.remove('hidden'); modal.classList.add('flex'); startProgress(); }; }
+      if (closeBtn){ closeBtn.onclick = ()=>{ modal.classList.add('hidden'); modal.classList.remove('flex'); intervalRef && clearInterval(intervalRef); }; }
+    })();
+  </script>
+</body>
+</html>
